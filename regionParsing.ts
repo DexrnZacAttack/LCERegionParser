@@ -27,25 +27,31 @@ const path: string = resolve(process.argv[2]!);
 
 const lEndian = false; 
 
-// never used this before oooh
+/**
+ * Stores the info for each chunk indice.
+ */
 interface indice {
     offset: number;
     length: number;
 }
 
+/**
+ * Stores the timestamps for each chunk
+ */
 interface timestamp {
     timestamp: number;
 }
 
-let timestamps: timestamp[] = [];
-let indices: indice[] = [];
-
-interface region {
-    indices: indice[];
-    timestamps: timestamp[];
+/**
+ * Stores the compressed regions.
+ */
+interface cRegion {
+    compressedRegion: Uint8Array;
 }
 
-let regionData: region[] = [];
+let timestamps: timestamp[] = [];
+let indices: indice[] = [];
+let compressedRegions: cRegion[] = [];
 
 function getUint24(byteOffset: number, dataView: DataView, lEndian: boolean = true): number {
     const byte1 = dataView.getUint8(byteOffset);
@@ -77,7 +83,6 @@ async function parseRegion(file: Buffer) {
         curOffset += 4;
         timestamps.push({timestamp: iTimestamp});
     }
-    regionData.push({indices: indices, timestamps: timestamps});
 }
 
 read();
