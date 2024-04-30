@@ -42,16 +42,12 @@ interface timestamp {
     timestamp: number;
 }
 
-/**
- * Stores the compressed regions.
- */
-interface cRegion {
-    compressedRegion: Uint8Array;
-}
-
+/** array of timestamps */
 let timestamps: timestamp[] = [];
+/** array of indice arrays */
 let indices: indice[] = [];
-let compressedRegions: cRegion[] = [];
+/** array of compressed chunk arrays (lol) */
+const cChunkArray: Uint8Array[] = [];
 
 function getUint24(byteOffset: number, dataView: DataView, lEndian: boolean = true): number {
     const byte1 = dataView.getUint8(byteOffset);
@@ -69,6 +65,7 @@ async function read() {
 
 async function parseRegion(file: Buffer) {
     const fileDV = new DataView(file.buffer);
+    /** Current offset in the file. */
     let curOffset = 0;
     
     while (curOffset < 4095) {
@@ -82,6 +79,22 @@ async function parseRegion(file: Buffer) {
         var iTimestamp = fileDV.getUint32(curOffset, lEndian);
         curOffset += 4;
         timestamps.push({timestamp: iTimestamp});
+    }
+    for (var i = 0; i < indices.length; i++) {
+        /** chunk offset as indicated by indice */
+        var cOffset = indices[i].offset;
+        /** chunk length as indicated by indice */
+        var cLength = indices[i].length;
+        /** an array for the current chunk */
+        var curChunkArray = new Uint8Array(cLength);
+        /** current Chunk Read Offset */
+        var curCROffset = 0;
+        for (var i2 = 0; i2 < cLength - 1; i2++) {
+            curChunkArray[i2] = fileDV.getUint8(curCROffset + cOffset);
+            curCROffset++;
+        }
+        cChunkArray.push(curChunkArray);
+        console.log(cChunkArray);
     }
 }
 
