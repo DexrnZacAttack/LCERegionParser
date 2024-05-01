@@ -1,2 +1,6 @@
 node_modules
 r.0.0.mcr
+testing.txt
+r.-1.0.mcr
+r.0.-1.mcr
+compression.ts
